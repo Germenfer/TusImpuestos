@@ -615,6 +615,67 @@ input, select, button { font: inherit; color: inherit; }
   .rallo-gain { flex-direction: column; align-items: flex-start; gap: 14px; }
 }
 
+/* ── Budget breakdown toggle inside Rallo panels ─────────── */
+.breakdown-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 10px 0; margin-top: 14px;
+  background: none; border: 0; border-top: 1px dashed var(--line);
+  font-size: 12px; font-weight: 500; color: var(--mute);
+  cursor: pointer; text-align: left;
+  transition: color 140ms ease;
+  position: relative; z-index: 1;
+}
+.breakdown-toggle:hover { color: var(--ink); }
+.breakdown-toggle .breakdown-caret { transition: transform 200ms ease; }
+.breakdown-toggle.open .breakdown-caret { transform: rotate(90deg); }
+
+.rallo-panel.rallo .breakdown-toggle {
+  border-top-color: oklch(0.45 0.06 155);
+  color: oklch(0.65 0.05 155);
+}
+.rallo-panel.rallo .breakdown-toggle:hover { color: oklch(0.88 0.04 155); }
+
+.breakdown-list {
+  margin-top: 8px;
+  display: grid; gap: 7px;
+  position: relative; z-index: 1;
+}
+.breakdown-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  column-gap: 12px;
+  align-items: start;
+}
+.breakdown-row .cat-label {
+  font-size: 12px; color: var(--mute);
+}
+.breakdown-row .cat-desc {
+  display: block;
+  font-size: 10px; color: var(--mute-2);
+  margin-top: 2px; line-height: 1.3;
+  font-family: var(--font-ui);
+}
+.rallo-panel.rallo .breakdown-row .cat-desc { color: oklch(0.5 0.04 155); }
+.breakdown-row .cat-pct {
+  font-size: 11px; color: var(--mute-2);
+  min-width: 38px; text-align: right;
+}
+.breakdown-row .cat-amt {
+  font-size: 12px; font-weight: 500;
+  min-width: 80px; text-align: right;
+}
+.rallo-panel.rallo .breakdown-row .cat-label { color: oklch(0.65 0.05 155); }
+.rallo-panel.rallo .breakdown-row .cat-pct   { color: oklch(0.55 0.04 155); }
+.rallo-panel.rallo .breakdown-row .cat-amt   { color: oklch(0.92 0.04 88); }
+
+.cat-privatized {
+  font-family: var(--font-num); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--warn);
+  text-align: right;
+}
+.rallo-panel.rallo .cat-privatized { color: oklch(0.75 0.14 40); }
+
 /* ── Disclaimer / footer ────────────────────────────────── */
 .disclaimer {
   display: flex; gap: 12px; align-items: flex-start;

@@ -715,7 +715,92 @@ const RALLO_FLAT = 0.05; // 5% flat tax on gross
 const RALLO_FEES = 0.0055; // 0.55% fees on gross
 const RALLO_TOTAL = RALLO_FLAT + RALLO_FEES;
 
+const ALL_CATEGORIES = [
+  {
+    currentLabel: 'Asistencia Social',
+    currentDesc:  'Pensiones, desempleo, familia y dependencia.',
+    currentPct:   39.65,
+    ralloLabel:   'Asistencia Social',
+    ralloDesc:    'Red de seguridad de última instancia. Pensiones privatizadas.',
+    ralloPct:     40,
+  },
+  {
+    currentLabel: 'Salud',
+    currentDesc:  'Sanidad pública, hospitales y medicamentos.',
+    currentPct:   14.60,
+    ralloLabel:   'Salud',
+    ralloDesc:    'Seguros y hospitales privados.',
+    ralloPct:     0,
+  },
+  {
+    currentLabel: 'Servicios Generales',
+    currentDesc:  'Administración, deuda pública y servicios de apoyo.',
+    currentPct:   12.28,
+    ralloLabel:   'Servicios Generales',
+    ralloDesc:    'Burocracia central mínima e intereses de deuda heredada.',
+    ralloPct:     5,
+  },
+  {
+    currentLabel: 'Asuntos Económicos',
+    currentDesc:  'Transporte, energía, agricultura e infraestructuras.',
+    currentPct:   12.02,
+    ralloLabel:   'Asuntos Económicos',
+    ralloDesc:    'Infraestructura e I+D básicas.',
+    ralloPct:     6,
+  },
+  {
+    currentLabel: 'Educación',
+    currentDesc:  'Docencia, investigación universitaria y becas.',
+    currentPct:   9.19,
+    ralloLabel:   'Educación',
+    ralloDesc:    'Universidades y colegios privados.',
+    ralloPct:     0,
+  },
+  {
+    currentLabel: 'Orden Público y Seguridad',
+    currentDesc:  'Policia, justicia y prisiones.',
+    currentPct:   4.80,
+    ralloLabel:   'Orden Público y Seguridad',
+    ralloDesc:    'Policía nacional, justicia y sistema penitenciario.',
+    ralloPct:     23,
+  },
+  {
+    currentLabel: 'Ocio, Cultura y Religión',
+    currentDesc:  'Actividades culturales y recreativas.',
+    currentPct:   2.60,
+    ralloLabel:   'Ocio, Cultura y Religión',
+    ralloDesc:    'Financiación privada y filantrópica.',
+    ralloPct:     0,
+  },
+  {
+    currentLabel: 'Defensa',
+    currentDesc:  'Operaciones militares y equipamiento.',
+    currentPct:   2.40,
+    ralloLabel:   'Defensa',
+    ralloDesc:    'Ejército y equipamiento defensivo.',
+    ralloPct:     21,
+  },
+  {
+    currentLabel: 'Protección del Medio Ambiente',
+    currentDesc:  'Gestión de residuos y conservación.',
+    currentPct:   2.16,
+    ralloLabel:   'Protección del Medio Ambiente',
+    ralloDesc:    'Financiación privada y filantrópica.',
+    ralloPct:     0,
+  },
+  {
+    currentLabel: 'Vivienda y Servicios Comunitarios',
+    currentDesc:  'Vivienda pública y urbanismo.',
+    currentPct:   1.02,
+    ralloLabel:   'Vivienda y Servicios Comunitarios',
+    ralloDesc:    'Comunidades privadas autogestionadas.',
+    ralloPct:     0,
+  },
+];
+
 function RalloComparison({ gross, personal, lifestyleEnabled, isAuto }) {
+  const [showBreakdown, setShowBreakdown] = useState(false);
+
   const currentState = Math.max(0, gross - personal);
   const ralloFlat = gross * RALLO_FLAT;
   const ralloFees = gross * RALLO_FEES;
@@ -777,6 +862,33 @@ function RalloComparison({ gross, personal, lifestyleEnabled, isAuto }) {
               <span className="v"><AnimatedNumber value={currentState} formatter={fmtEur} /></span>
             </div>
           </div>
+          <button
+            className={`breakdown-toggle${showBreakdown ? ' open' : ''}`}
+            onClick={() => setShowBreakdown((s) => !s)}>
+            ¿A qué va cada euro que pagas?
+            <svg className="breakdown-caret" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M2.5 1.5L7.5 5L2.5 8.5" />
+            </svg>
+          </button>
+          {showBreakdown &&
+          <div className="breakdown-list">
+              {ALL_CATEGORIES.map((cat) =>
+              <div className="breakdown-row" key={cat.currentLabel}>
+                  <span className="cat-label">
+                    {cat.currentLabel}
+                    <span className="cat-desc">{cat.currentDesc}</span>
+                  </span>
+                  {cat.currentPct === 0 ?
+                  <span className="cat-privatized" style={{ gridColumn: '2 / 4' }}>PRIVATIZADO</span> :
+                  <>
+                      <span className="cat-pct numerals">{cat.currentPct}%</span>
+                      <span className="cat-amt numerals">{fmtEur(currentState * cat.currentPct / 100)}</span>
+                    </>
+                  }
+                </div>
+              )}
+            </div>
+          }
         </div>
 
         <div className="rallo-panel rallo">
@@ -810,6 +922,33 @@ function RalloComparison({ gross, personal, lifestyleEnabled, isAuto }) {
               <span className="v"><AnimatedNumber value={ralloState} formatter={fmtEur} /></span>
             </div>
           </div>
+          <button
+            className={`breakdown-toggle${showBreakdown ? ' open' : ''}`}
+            onClick={() => setShowBreakdown((s) => !s)}>
+            ¿A qué va cada euro que pagas?
+            <svg className="breakdown-caret" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M2.5 1.5L7.5 5L2.5 8.5" />
+            </svg>
+          </button>
+          {showBreakdown &&
+          <div className="breakdown-list">
+              {ALL_CATEGORIES.map((cat) =>
+              <div className="breakdown-row" key={cat.ralloLabel}>
+                  <span className="cat-label">
+                    {cat.ralloLabel}
+                    <span className="cat-desc">{cat.ralloDesc}</span>
+                  </span>
+                  {cat.ralloPct === 0 ?
+                  <span className="cat-privatized" style={{ gridColumn: '2 / 4' }}>PRIVATIZADO</span> :
+                  <>
+                      <span className="cat-pct numerals">{cat.ralloPct}%</span>
+                      <span className="cat-amt numerals">{fmtEur(ralloState * cat.ralloPct / 100)}</span>
+                    </>
+                  }
+                </div>
+              )}
+            </div>
+          }
         </div>
       </div>
 
