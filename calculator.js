@@ -122,19 +122,28 @@ function calcMinimoPersonal({ age, children, disability }) {
   return mp + mf;
 }
 
-// Asalariado: SS = 6.48% of gross (employee share), with a base cap.
-// Cap (2025): max contribution base ~4,909.50 €/month ×12 ≈ 58,914 €/year.
+// Asalariado: SS employee share breakdown:
+//   Contingencias comunes: 4.70%
+//   Desempleo:             1.55%
+//   Formación profesional: 0.10%
+//   Total:                 6.35%
+// Cap 2026: max base ~4,909.50 €/month × 12 ≈ 58,914 €/year.
 function calcSocialSecurity(gross) {
   const cap = 58914;
   const base = Math.min(gross, cap);
-  return base * 0.0648;
+  return base * 0.0635;
 }
 
-// Reducción por rendimientos del trabajo (article 20 LIRPF)
+// Reducción por rendimientos del trabajo (art. 20 LIRPF, actualizada 2025)
+// Se aplica sobre el rendimiento neto previo (ya deducidos SS + 2.000€ gastos).
+// Tramos 2025:
+//   ≤ 19.747,50 €  → reducción completa de 7.302 €
+//   19.747,50 – 32.279,58 €  → 7.302 – 1,75 × (RNT − 19.747,50)
+//   > 32.279,58 €  → 0 €
 function calcWorkIncomeReduction(rendimientoNetoPrevio) {
-  if (rendimientoNetoPrevio <= 14852) return 7302;
-  if (rendimientoNetoPrevio <= 17673.52) {
-    return 7302 - 1.75 * (rendimientoNetoPrevio - 14852);
+  if (rendimientoNetoPrevio <= 19747.5) return 7302;
+  if (rendimientoNetoPrevio <= 32279.58) {
+    return Math.max(0, 7302 - 1.75 * (rendimientoNetoPrevio - 19747.5));
   }
   return 0;
 }
@@ -156,19 +165,44 @@ function calculate(input) {
   const brackets = REGIONAL_BRACKETS[region] || REGIONAL_BRACKETS.default;
 
   if (employmentType === 'autonomo') {
-    // Very simplified: flat annual cuota approximation by income bracket
-    let cuota;
-    if (gross < 14000)      cuota = 230 * 12;
-    else if (gross < 22000) cuota = 294 * 12;
-    else if (gross < 32000) cuota = 350 * 12;
-    else if (gross < 50000) cuota = 405 * 12;
-    else                    cuota = 530 * 12;
+    // Cuota autónomos 2025 — sistema de tramos por ingresos netos reales
+    // (rendimiento neto = gross − gastos deducibles estimados)
+    // Tabla oficial simplificada (cuota mínima mensual por tramo):
+    //   < 670 €/mes (< 8.040 €/año)   → 225 €/mes
+    //   670–900 €/mes (8.040–10.800)   → 270 €/mes
+    //   900–1.166,70 €/mes (~14.000)   → 294 €/mes
+    //   1.166,70–1.300 €/mes (~15.600) → 350 €/mes
+    //   1.300–1.500 €/mes (~18.000)    → 370 €/mes
+    //   1.500–1.700 €/mes (~20.400)    → 390 €/mes
+    //   1.700–1.850 €/mes (~22.200)    → 415 €/mes
+    //   1.850–2.030 €/mes (~24.360)    → 440 €/mes
+    //   2.030–2.330 €/mes (~27.960)    → 465 €/mes
+    //   2.330–2.760 €/mes (~33.120)    → 490 €/mes
+    //   2.760–3.190 €/mes (~38.280)    → 530 €/mes
+    //   > 3.190 €/mes (> 38.280 €/año) → 590 €/mes
+    let cuotaMonthly;
+    const monthlyGross = gross / 12;
+    if      (monthlyGross < 670)    cuotaMonthly = 225;
+    else if (monthlyGross < 900)    cuotaMonthly = 270;
+    else if (monthlyGross < 1166.7) cuotaMonthly = 294;
+    else if (monthlyGross < 1300)   cuotaMonthly = 350;
+    else if (monthlyGross < 1500)   cuotaMonthly = 370;
+    else if (monthlyGross < 1700)   cuotaMonthly = 390;
+    else if (monthlyGross < 1850)   cuotaMonthly = 415;
+    else if (monthlyGross < 2030)   cuotaMonthly = 440;
+    else if (monthlyGross < 2330)   cuotaMonthly = 465;
+    else if (monthlyGross < 2760)   cuotaMonthly = 490;
+    else if (monthlyGross < 3190)   cuotaMonthly = 530;
+    else                            cuotaMonthly = 590;
+    const cuota = cuotaMonthly * 12;
 
-    const expenses = 0; // user could add later
-    const rendimientoNeto = Math.max(0, gross - cuota - expenses);
-    // Forfait deducción 5% para autónomos
-    const rendNetoReducido = rendimientoNeto * 0.95 - Math.min(pension, 1500);
-    const base = Math.max(0, rendNetoReducido);
+    // Rendimiento neto = bruto − cuota SS
+    const rendimientoNeto = Math.max(0, gross - cuota);
+    // Deducción forfaitaria del 7% para autónomos personas físicas (máx. 2.000 €)
+    const forfait = Math.min(rendimientoNeto * 0.07, 2000);
+    // Reducción planes de pensiones (máx. 1.500 €)
+    const pensionDed = Math.min(pension, 1500);
+    const base = Math.max(0, rendimientoNeto - forfait - pensionDed);
 
     const cuotaEstatal = applyBrackets(base, STATE_BRACKETS);
     const cuotaAuton   = applyBrackets(base, brackets);
@@ -198,10 +232,12 @@ function calculate(input) {
 
   // Asalariado
   const ss = calcSocialSecurity(gross);
+  // Otros gastos deducibles: 2.000 € fijos (art. 19.2.f LIRPF)
   const workExpense = 2000;
   const rendimientoNetoPrevio = Math.max(0, gross - ss - workExpense);
   const reduction = calcWorkIncomeReduction(rendimientoNetoPrevio);
   const rendimientoNeto = Math.max(0, rendimientoNetoPrevio - reduction);
+  // Reducción por aportaciones a planes de pensiones: máx. 1.500 €/año
   const pensionCap = Math.min(pension, 1500);
   const baseLiquidable = Math.max(0, rendimientoNeto - pensionCap);
 
@@ -277,9 +313,10 @@ const WEALTH_BRACKETS = [
   { up: Infinity, rate: 0.035 },
 ];
 
-// Effective weighted VAT rate on a typical consumer basket
-// (mix of 21% general + 10% reduced + 4% super-reduced)
-const VAT_RATE = 0.105;
+// IVA efectivo ponderado sobre una cesta de consumo española típica:
+// mezcla de 21% general + 10% reducido + 4% superreducido.
+// Estudios INE/Funcas estiman ~8,5% de tipo efectivo medio.
+const VAT_RATE = 0.085;
 
 function calculateEffective(taxResult, lifestyle = {}, region = 'default') {
   const net = taxResult.net || 0;
@@ -296,7 +333,10 @@ function calculateEffective(taxResult, lifestyle = {}, region = 'default') {
   // VAT is included in retail prices: VAT portion = spending * r/(1+r)
   const vat = spending * VAT_RATE / (1 + VAT_RATE);
 
-  const ibi = ownsHome && homeValue > 0 ? homeValue * 0.005 : 0;
+  // IBI: se aplica sobre el valor catastral, que suele ser ~30-40% del valor
+  // de mercado. Tipo medio IBI en España: ~0,5% sobre catastral ≈ 0,18% sobre
+  // valor de mercado. Usamos 0,18% como aproximación realista.
+  const ibi = ownsHome && homeValue > 0 ? homeValue * 0.0018 : 0;
 
   // Wealth tax
   const homeNet = ownsHome ? Math.max(0, homeValue - mortgage) : 0;

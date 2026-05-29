@@ -40,6 +40,13 @@ function AnimatedNumber({ value, formatter = fmtEur, duration = 500 }) {
 
 // ─── Field primitives ───────────────────────────────────────
 function NumberField({ label, value, onChange, suffix, hint, big = false, accent = false, min = 0, max = 9999999, step = 100 }) {
+  const [raw, setRaw] = useState(String(value));
+  const focused = useRef(false);
+
+  useEffect(() => {
+    if (!focused.current) setRaw(String(value));
+  }, [value]);
+
   return (
     <div className="field">
       <label>{label}</label>
@@ -47,12 +54,18 @@ function NumberField({ label, value, onChange, suffix, hint, big = false, accent
         <input
           type="number"
           className={`numerals${big ? ' big' : ''}`}
-          value={value}
+          value={raw}
           min={min}
           max={max}
           step={step}
-          onChange={(e) => onChange(e.target.value === '' ? 0 : Math.max(min, Math.min(max, +e.target.value)))} />
-        
+          onChange={(e) => setRaw(e.target.value)}
+          onFocus={() => { focused.current = true; }}
+          onBlur={(e) => {
+            focused.current = false;
+            const n = e.target.value === '' ? min : Math.max(min, Math.min(max, +e.target.value || min));
+            onChange(n);
+            setRaw(String(n));
+          }} />
         {suffix && <span className="suffix">{suffix}</span>}
       </div>
       {hint && <div className="hint">{hint}</div>}
@@ -526,8 +539,8 @@ function App() {
               <div className="actions">
                 <div className="tags">
                   {!isAuto && <span className="tag">Retención ≈ {fmtPct(result.withholding)}</span>}
-                  {lifestyle.enabled && <span className="tag">IVA medio ≈ 10,5%</span>}
-                  {lifestyle.enabled && lifestyle.ownsHome && <span className="tag">IBI ≈ 0,5%</span>}
+                  {lifestyle.enabled && <span className="tag">IVA medio ≈ 8,5%</span>}
+                  {lifestyle.enabled && lifestyle.ownsHome && <span className="tag">IBI ≈ 0,18% s/mercado</span>}
                 </div>
                 <div className="spacer"></div>
                 <button className="btn ghost" title="Compartir" onClick={share}>
@@ -559,10 +572,10 @@ function App() {
         <section id="como" className="card" style={{ marginBottom: 64 }}>
           <div className="section-label"><span className="num">i</span>Cómo se calcula</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 24 }}>
-            <Step n="1" title="Seguridad Social" body={isAuto ? 'Para autónomos: cuota anual aproximada según tu nivel de ingresos.' : '6,48% sobre el bruto, con tope máximo de cotización.'} />
+            <Step n="1" title="Seguridad Social" body={isAuto ? 'Para autónomos: cuota mensual según tramos de ingresos netos reales (sistema 2023+).' : '6,35% sobre el bruto (contingencias + desempleo + FP), con tope máximo de cotización de ~58.914 €/año.'} />
             <Step n="2" title="IRPF" body="Tramos estatales + autonómicos de tu comunidad, restando los mínimos personal y familiar y la reducción por trabajo." />
-            {lifestyle.enabled && <Step n="3" title="IVA al consumir" body={`Estimamos que gastas ~${Math.round(activeSpendRate * 100)}% de tu neto. Aplicamos un IVA medio ponderado del 10,5% (mezcla de 21% / 10% / 4%).`} />}
-            {lifestyle.enabled && <Step n="4" title="IBI y Patrimonio" body="IBI ≈ 0,5% del valor de mercado de la vivienda. Patrimonio: mínimo exento 700k€ + 300k€ vivienda habitual. Madrid y Andalucía bonifican el 100%." />}
+            {lifestyle.enabled && <Step n="3" title="IVA al consumir" body={`Estimamos que gastas ~${Math.round(activeSpendRate * 100)}% de tu neto. Aplicamos un IVA efectivo medio del 8,5% (mezcla ponderada de 21% / 10% / 4% según cesta de consumo española).`} />}
+            {lifestyle.enabled && <Step n="4" title="IBI y Patrimonio" body="IBI: ~0,5% sobre valor catastral ≈ 0,18% sobre valor de mercado. Patrimonio: mínimo exento 700k€ + 300k€ vivienda habitual. Madrid y Andalucía bonifican el 100%." />}
           </div>
         </section>
       </main>
