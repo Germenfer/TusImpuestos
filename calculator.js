@@ -227,6 +227,9 @@ function calculate(input) {
       employmentType,
       base, minimoPersonal,
       withholding: gross > 0 ? irpf / gross : 0,
+      rendimientoNeto, forfait, pensionDed,
+      cuotaEstatal, cuotaAuton, cuotaIntegra,
+      cuotaMinimoEst, cuotaMinimoAut, cuotaMinimo,
     };
   }
 
@@ -265,6 +268,9 @@ function calculate(input) {
     employmentType,
     base: baseLiquidable,
     minimoPersonal,
+    workExpense, rendimientoNetoPrevio, reduction, rendimientoNeto, pensionCap,
+    cuotaEstatal, cuotaAuton, cuotaIntegra,
+    cuotaMinimoEst, cuotaMinimoAut, cuotaMinimo,
   };
 }
 

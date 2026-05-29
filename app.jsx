@@ -203,6 +203,8 @@ function App() {
 
   const isAuto = input.employmentType === 'autonomo';
   const ssLabel = isAuto ? 'Cuota Autónomos' : 'Seguridad Social';
+  const [showIrpfDetail, setShowIrpfDetail] = useState(false);
+  const STATUS_LABELS = { soltero: 'Soltero/a', casado: 'Casado/a', divorciado: 'Divorciado/a', viudo: 'Viudo/a' };
 
   return (
     <>
@@ -535,6 +537,122 @@ function App() {
                   </>
                 }
               </div>
+
+              <button
+                className={`irpf-toggle${showIrpfDetail ? ' open' : ''}`}
+                onClick={() => setShowIrpfDetail((s) => !s)}>
+                Detalle del cálculo del IRPF
+                <svg className="irpf-caret" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <path d="M2.5 1.5L7.5 5L2.5 8.5" />
+                </svg>
+              </button>
+
+              {showIrpfDetail &&
+              <div className="irpf-detail">
+                  <div className="irpf-profile">
+                    <span className="tag">{input.age} años</span>
+                    <span className="tag">{STATUS_LABELS[input.status]}</span>
+                    <span className="tag">{REGION_LIST.find((r) => r.id === input.region)?.label}</span>
+                    {input.children > 0 && <span className="tag">{input.children} {input.children === 1 ? 'hijo' : 'hijos'}</span>}
+                    {input.pension > 0 && <span className="tag">Pensión: {fmtEur(isAuto ? result.pensionDed : result.pensionCap)}</span>}
+                    {input.disability !== 'none' && <span className="tag">{input.disability === 'mild' ? 'Discap. ≥33%' : 'Discap. ≥65%'}</span>}
+                  </div>
+
+                  <div className="irpf-calc">
+                    {isAuto ?
+                    <>
+                        <div className="c-row">
+                          <span className="l">Ingresos brutos</span>
+                          <span><AnimatedNumber value={result.gross} /></span>
+                        </div>
+                        <div className="c-row">
+                          <span className="l">– Cuota autónomos ({fmtEur(result.ss / 12)}/mes)</span>
+                          <span>−<AnimatedNumber value={result.ss} /></span>
+                        </div>
+                        <div className="c-row">
+                          <span className="l">– Deducción forfait (7%, máx. 2.000 €)</span>
+                          <span>−<AnimatedNumber value={result.forfait} /></span>
+                        </div>
+                        {result.pensionDed > 0 &&
+                        <div className="c-row">
+                            <span className="l">– Planes de pensión</span>
+                            <span>−<AnimatedNumber value={result.pensionDed} /></span>
+                          </div>
+                        }
+                      </> :
+
+                    <>
+                        <div className="c-row">
+                          <span className="l">Rendimiento íntegro</span>
+                          <span><AnimatedNumber value={result.gross} /></span>
+                        </div>
+                        <div className="c-row">
+                          <span className="l">– {ssLabel} (6,35%)</span>
+                          <span>−<AnimatedNumber value={result.ss} /></span>
+                        </div>
+                        <div className="c-row">
+                          <span className="l">– Gastos deducibles (art. 19 LIRPF)</span>
+                          <span>−<AnimatedNumber value={result.workExpense} /></span>
+                        </div>
+                        {result.reduction > 0 &&
+                        <div className="c-row">
+                            <span className="l">– Reducción por rendimientos del trabajo</span>
+                            <span>−<AnimatedNumber value={result.reduction} /></span>
+                          </div>
+                        }
+                        {result.pensionCap > 0 &&
+                        <div className="c-row">
+                            <span className="l">– Planes de pensión</span>
+                            <span>−<AnimatedNumber value={result.pensionCap} /></span>
+                          </div>
+                        }
+                      </>
+                    }
+
+                    <div className="c-row c-sub">
+                      <span className="l">= Base liquidable</span>
+                      <span><AnimatedNumber value={result.base} /></span>
+                    </div>
+                    <div className="c-row c-mini">
+                      <span className="l">Mínimo personal y familiar aplicado</span>
+                      <span className="numerals">{fmtEur(result.minimoPersonal)}</span>
+                    </div>
+
+                    <div className="c-sep">Parte estatal</div>
+                    <div className="c-row">
+                      <span className="l">Cuota íntegra estatal</span>
+                      <span><AnimatedNumber value={result.cuotaEstatal} /></span>
+                    </div>
+                    <div className="c-row">
+                      <span className="l">– Mínimo personal (estatal)</span>
+                      <span>−<AnimatedNumber value={result.cuotaMinimoEst} /></span>
+                    </div>
+                    <div className="c-row c-sub">
+                      <span className="l">= Cuota líquida estatal</span>
+                      <span><AnimatedNumber value={Math.max(0, result.cuotaEstatal - result.cuotaMinimoEst)} /></span>
+                    </div>
+
+                    <div className="c-sep">Parte autonómica · {REGION_LIST.find((r) => r.id === input.region)?.label}</div>
+                    <div className="c-row">
+                      <span className="l">Cuota íntegra autonómica</span>
+                      <span><AnimatedNumber value={result.cuotaAuton} /></span>
+                    </div>
+                    <div className="c-row">
+                      <span className="l">– Mínimo personal (autonómico)</span>
+                      <span>−<AnimatedNumber value={result.cuotaMinimoAut} /></span>
+                    </div>
+                    <div className="c-row c-sub">
+                      <span className="l">= Cuota líquida autonómica</span>
+                      <span><AnimatedNumber value={Math.max(0, result.cuotaAuton - result.cuotaMinimoAut)} /></span>
+                    </div>
+
+                    <div className="c-row c-total">
+                      <span className="l">= IRPF total</span>
+                      <span><AnimatedNumber value={result.irpf} /></span>
+                    </div>
+                  </div>
+                </div>
+              }
 
               <div className="actions">
                 <div className="tags">

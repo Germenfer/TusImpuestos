@@ -636,6 +636,66 @@ input, select, button { font: inherit; color: inherit; }
 .site-footer a { color: var(--mute); text-decoration: none; }
 .site-footer a:hover { color: var(--ink); }
 
+/* ── IRPF step-by-step detail ───────────────────────────── */
+.irpf-toggle {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 11px 0; margin-top: 10px;
+  background: none; border: 0; border-top: 1px dashed var(--line);
+  color: var(--mute); font-size: 13px; font-weight: 500;
+  cursor: pointer; text-align: left;
+  transition: color 140ms ease;
+}
+.irpf-toggle:hover { color: var(--ink); }
+.irpf-toggle .irpf-caret { margin-left: auto; transition: transform 200ms ease; }
+.irpf-toggle.open .irpf-caret { transform: rotate(90deg); }
+
+.irpf-detail {
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--line);
+  margin-bottom: 6px;
+}
+.irpf-profile {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 16px;
+}
+
+.irpf-calc {
+  font-family: var(--font-num); font-size: 13px;
+}
+.irpf-calc .c-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 5px 0;
+}
+.irpf-calc .c-row .l {
+  color: var(--mute); font-family: var(--font-ui); font-size: 13px;
+}
+.irpf-calc .c-row.c-sub {
+  padding-top: 8px; margin-top: 2px;
+  border-top: 1px dashed var(--line);
+  font-weight: 500;
+}
+.irpf-calc .c-row.c-sub .l { color: var(--ink); }
+.irpf-calc .c-row.c-mini {
+  padding: 4px 0 2px;
+  font-size: 12px;
+}
+.irpf-calc .c-row.c-mini .l { color: var(--mute-2); font-size: 12px; }
+.irpf-calc .c-row.c-mini span:last-child { color: var(--mute-2); }
+.irpf-calc .c-row.c-total {
+  padding-top: 10px; margin-top: 4px;
+  border-top: 1.5px solid var(--ink);
+  font-weight: 600; font-size: 14px;
+}
+.irpf-calc .c-row.c-total .l { color: var(--ink); }
+.irpf-calc .c-sep {
+  margin-top: 14px; margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-num); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--mute-2);
+}
+
 /* ── Action row ─────────────────────────────────────────── */
 .actions {
   display: flex; gap: 10px; margin-top: 16px; align-items: center;
