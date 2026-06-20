@@ -142,6 +142,23 @@ function ToggleRow({ on, onChange, text, sub }) {
 
 }
 
+// ─── Scroll-spy para las pseudopestañas ─────────────────────
+function useScrollSpy(ids) {
+  const [active, setActive] = useState(ids[0]);
+  useEffect(() => {
+    if (!('IntersectionObserver' in window)) return;
+    const nodes = ids.map((id) => document.getElementById(id)).filter(Boolean);
+    const io = new IntersectionObserver((entries) => {
+      const vis = entries.filter((e) => e.isIntersecting).
+      sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+      if (vis[0]) setActive(vis[0].target.id);
+    }, { rootMargin: '-50% 0px -45% 0px', threshold: 0 });
+    nodes.forEach((n) => io.observe(n));
+    return () => io.disconnect();
+  }, [ids.join(',')]);
+  return active;
+}
+
 // ─── App ────────────────────────────────────────────────────
 function App() {
   const [input, setInput] = useState({
@@ -206,20 +223,32 @@ function App() {
   const [showIrpfDetail, setShowIrpfDetail] = useState(false);
   const STATUS_LABELS = { soltero: 'Soltero/a', casado: 'Casado/a', divorciado: 'Divorciado/a', viudo: 'Viudo/a' };
 
+  // Pseudopestañas: cada bloque es su propia pantalla (conmuta la vista).
+  const [view, setView] = useState('comparativa');
+  useEffect(() => { window.scrollTo(0, 0); }, [view]);
+  const PrincipiosSection = window.PrincipiosSection;
+  const GobiernoSection = window.GobiernoSection;
+  const BasesSection = window.BasesSection;
+  const TransicionSection = window.TransicionSection;
+  const tab = (id) => view === id ? 'on' : '';
+  const goTo = (id) => (e) => { e.preventDefault(); setView(id); };
+
   return (
     <>
       {/* HEADER */}
       <header className="site-header">
         <div className="shell row">
-          <a className="brand" href="#">
+          <a className="brand" href="#comparativa" onClick={goTo('comparativa')}>
             <span className="dot"></span>
-            Tus Impuestos
+            Menos Estado
             <span className="year">2026</span>
           </a>
           <nav className="nav">
-            <a href="#calc">Calculadora</a>
-            <a href="#como">Cómo se calcula</a>
-            <a href="#preguntas">Preguntas</a>
+            <a href="#comparativa" className={tab('comparativa')} onClick={goTo('comparativa')}>La Propuesta Liberal</a>
+            <a href="#principios" className={tab('principios')} onClick={goTo('principios')}>Principios del Liberalismo</a>
+            <a href="#gobierno" className={tab('gobierno')} onClick={goTo('gobierno')}>Gobierno Mínimo</a>
+            <a href="#bases" className={tab('bases')} onClick={goTo('bases')}>Bases</a>
+            <a href="#transicion" className={tab('transicion')} onClick={goTo('transicion')}>Transición Liberal</a>
           </nav>
           <div className="lang">
             <button className="on">ES</button>
@@ -228,12 +257,15 @@ function App() {
         </div>
       </header>
 
-      <main className="shell">
+      <main>
+        {/* ══ BLOQUE 1 · ACTUAL VS PROPUESTO (hero + calculadora + Rallo + cómo se calcula) ══ */}
+        {view === 'comparativa' &&
+        <div id="comparativa" className="shell">
         {/* HERO */}
         <section className="hero">
-          <span className="eyebrow">IRPF + IVA + Patrimonio · España · 2026</span>
-          <h1>Salario: Tú lo ganas. <mark>El Estado te lo roba.</mark> Haz los números.</h1>
-          <p>Tu salario bruto es como una tarta de la cual te van robando cachos hasta que llegas a casa. Una vez allí te queda el salario neto.  Pero, cuando te pones a comerla, te das cuenta de que no todo te llega a la boca. Este es el neto efectivo. ¿A qué va cada gajo de la tarta? ¿De cuánto dinero extra podrías disponer si no te lo robaran?</p>
+          <span className="eyebrow">la propuesta liberal · España · 2026</span>
+          <h1>Menos Estado, <mark>Más Libertad</mark>. Haz los números.</h1>
+          <p>Una guía de la propuesta liberal para reducir el Estado y ampliar tu libertad —de los principios al gobierno mínimo, bloque a bloque, hasta la transición. Empieza por lo concreto: tu salario bruto es una tarta de la que el Estado va cortando porciones hasta dejarte el neto, y aún más cuando lo gastas. ¿A qué va cada gajo? ¿Cuánto recuperarías sin ese bocado?</p>
         </section>
 
         {/* CALCULATOR */}
@@ -696,6 +728,19 @@ function App() {
             {lifestyle.enabled && <Step n="4" title="IBI y Patrimonio" body="IBI: ~0,5% sobre valor catastral ≈ 0,18% sobre valor de mercado. Patrimonio: mínimo exento 700k€ + 300k€ vivienda habitual. Madrid y Andalucía bonifican el 100%." />}
           </div>
         </section>
+        </div>}{/* /#comparativa */}
+
+        {/* ══ BLOQUE 2 · LOS CIMIENTOS ══ */}
+        {view === 'principios' && PrincipiosSection && <PrincipiosSection />}
+
+        {/* ══ BLOQUE 3 · GOBIERNO MÍNIMO ══ */}
+        {view === 'gobierno' && GobiernoSection && <GobiernoSection />}
+
+        {/* ══ BLOQUE 4 · BASES (01–14) ══ */}
+        {view === 'bases' && BasesSection && <BasesSection />}
+
+        {/* ══ BLOQUE 4 · CÓMO TRANSICIONAR ══ */}
+        {view === 'transicion' && TransicionSection && <TransicionSection />}
       </main>
 
       <footer className="site-footer shell">
@@ -985,5 +1030,11 @@ function share() {
     navigator.clipboard.writeText(url);
   }
 }
+
+// Expone los primitivos reutilizables a window para que los archivos
+// guide-*.jsx (cargados antes) los usen al renderizar.
+Object.assign(window, {
+  AnimatedNumber, NumberField, SelectField, Segmented, SliderField, ToggleRow, Step,
+  fmtEur, fmtEur2, fmtPct });
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App />);
