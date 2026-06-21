@@ -688,9 +688,60 @@ const SECTORS = [
     a: 'Al revés: la globalización y las redes de distribución dejan que cualquier autor halle su nicho entre miles de millones de personas, sin plegarse a las masas. El crowdfunding, el mecenazgo o los fascículos financian obra no comercial; y el mercado nunca fue tribunal de la calidad: Van Gogh no vendió un cuadro en vida.',
   },
   },
-  sec(12, 'Pensiones', 'Idea central de marcador de posición.'),
-  sec(13, 'Sanidad', 'Idea central de marcador de posición.'),
-  sec(14, 'Asistencia social', 'Idea central de marcador de posición.'),
+  {
+  n: 12,
+  title: 'Pensiones',
+  idea: 'El Estado no es necesario para jubilarse con dignidad: basta con ahorrar e invertir la propia renta a lo largo de la vida laboral.',
+  special: true,
+  problem: 'España financia las pensiones por reparto: los cotizantes de hoy pagan las pensiones de los jubilados de hoy. Es, en la práctica, un esquema piramidal que solo se sostiene si los cotizantes crecen más rápido que los pensionistas. Como ocurre lo contrario, el Estado lleva décadas recortando: sube la edad de jubilación y amplía los años de cómputo.',
+  proposal: 'Rallo propone sustituir el reparto por la capitalización: cada trabajador ahorra e invierte la parte de su renta que hoy se lleva la Seguridad Social. A lo largo de la vida laboral acumula un patrimonio propio y heredable que financia su jubilación. El modelo de referencia es Chile, donde desde 1981 ese ahorro lo gestionan fondos privados de pensiones.',
+  data: [
+    { k: '28,3 %', v: 'Del salario se cotiza al sistema público de pensiones' },
+    { k: '1,4', v: 'En edad de trabajar por cada mayor de 65 en 2051' },
+    { k: '5,5 %', v: 'Rentabilidad real media anual de las bolsas mundiales desde 1900' },
+    { k: '1981', v: 'Chile sustituyó el reparto por fondos privados de capitalización' },
+  ],
+  objection: {
+    q: '«Si mi pensión depende de la bolsa, una crisis bursátil puede arruinarme; el Estado al menos me garantiza una cantidad.»',
+    a: 'Esa garantía es ilusoria: el reparto lleva décadas recortándose porque sus promesas resultan insostenibles. A largo plazo la bolsa no es tan volátil; ha rentado un 5,5 % anual durante más de un siglo y no existe ningún periodo de veinte años sin revalorización. Cerca de la jubilación, el ahorro se migra a activos más seguros.',
+  },
+  },
+  {
+  n: 13,
+  title: 'Sanidad',
+  idea: 'El Estado contiene el gasto sanitario racionándolo; un mercado libre lo contendría innovando, con ahorro propio y seguros solo para catástrofes.',
+  special: true,
+  problem: 'España usa el modelo Beveridge: el Estado recauda, gestiona y fija qué prestaciones cubre. Para contener el gasto raciona la demanda mediante listas de espera, copagos y exclusiones, no mediante el precio. El resultado es una oferta desconectada de las preferencias del paciente y, sobre todo, una innovación congelada: el burócrata carece de incentivos para mejorar el servicio.',
+  proposal: 'Pasar de un sistema de reparto a uno de capitalización. El grueso del gasto se cubriría con ahorro individual; los seguros, con prima ligada al riesgo, solo cubrirían enfermedades catastróficas y crónicas. La oferta se desregula: sin colegios que monopolicen el ejercicio, con médicos extranjeros y sin patentes. El Estado queda como asistencia subsidiaria para quien no pueda pagar.',
+  data: [
+    { k: '1.500 €', v: 'Coste medio de la sanidad pública por español al año' },
+    { k: '100 días', v: 'Espera media por especialidad en España (2012)' },
+    { k: '4,6 %', v: 'Gasto sanitario sobre PIB en Singapur, sistema casi de mercado' },
+    { k: '97 %', v: 'Parte de la odontología española pagada con ahorro privado' },
+  ],
+  objection: {
+    q: '«Si la sanidad pública española es de las mejores del mundo y la privada estadounidense es disfuncional, ¿no demuestra eso que privatizar empeoraría el servicio?»',
+    a: 'Estados Unidos no es un mercado libre: el 45 % del gasto es público, el paciente solo paga el 10 % de su bolsillo y las licencias médicas restringen la oferta. Es un caso de intervencionismo, no de sanidad privada. Donde sí hay mercado —Singapur, Suiza, los dentistas españoles— el coste baja sin perder calidad.',
+  },
+  },
+  {
+  n: 14,
+  title: 'Asistencia social',
+  idea: 'Proteger a los más vulnerables no exige un Estado gigante: la ayuda mutua y la filantropía privada ya bastaron antes del Estado de Bienestar.',
+  special: true,
+  problem: 'Hoy el Estado monopoliza la asistencia social mediante la redistribución coactiva de la renta. Al convertirla en un derecho objetivo, no distingue quién la merece, no exige contrapartidas y deja que los derechos se expandan sin límite. El resultado no es combatir la pobreza, sino subvencionarla: como prosperar implica perder la ayuda, conviene no salir de la trampa de la pobreza.',
+  proposal: 'La mayor parte de la asistencia volvería a las sociedades de ayuda mutua, recíprocas y exigibles entre socios, y de forma subsidiaria a la filantropía privada. Cada individuo cubriría sus riesgos con ahorro, seguros y familia. El Estado mínimo solo mantendría una red de última instancia, en torno al 2 % del PIB: una pensión de subsistencia que cubra la diferencia, con control y reintegrable cuando sea posible.',
+  data: [
+    { k: '2 millones', v: 'personas necesitadas reales en España, menos del 5 % de la población' },
+    { k: '30.000 M€', v: 'coste estimado de la asistencia necesaria, cerca del 3 % del PIB' },
+    { k: '2 %', v: 'del PIB que EE. UU. ya dona hoy a filantropía privada' },
+    { k: '2,6 %', v: 'ingleses que aún dependían del Estado a fines del s. XIX' },
+  ],
+  objection: {
+    q: '«Sin redistribución obligatoria, los más vulnerables quedan a merced de la caridad y muchos se quedarán sin ninguna protección.»',
+    a: 'La mayor parte de la asistencia no sería caridad, sino ayuda mutua exigible, como demuestra la historia previa al Estado de Bienestar. Los necesitados reales serían pocos —menos del 5 % de la población— y, mientras exista, el Estado mínimo reservaría un 2 % del PIB como red de última instancia para que nadie quede desamparado.',
+  },
+  },
 ];
 
 function SectorDetail({ data, onClose }) {
